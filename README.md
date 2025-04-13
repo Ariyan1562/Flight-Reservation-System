@@ -1,32 +1,7 @@
 import java.io.*;
-import java.util.*;
-
-class Flight {
-    int id;
-    String flightName, departure, destination;
-    int availableSeats;
-    double price;
-
-    public Flight(int id, String flightName, String departure, String destination, int availableSeats, double price) {
-        this.id = id;
-        this.flightName = flightName;
-        this.departure = departure;
-        this.destination = destination;
-        this.availableSeats = availableSeats;
-        this.price = price;
-    }
-}
-
-class User {
-    String username, password;
-    boolean isAdmin;
-
-    public User(String username, String password, boolean isAdmin) {
-        this.username = username;
-        this.password = password;
-        this.isAdmin = isAdmin;
-    }
-}
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 public class FlightReservationSystem {
     static List<Flight> flights = new ArrayList<>();
@@ -36,6 +11,17 @@ public class FlightReservationSystem {
     static final String USERS_FILE = "users.txt";
     static final String FLIGHTS_FILE = "flights.txt";
     static List<String> bookingHistory = new ArrayList<>();
+
+    public static void clearScreen() {
+        for (int i = 0; i < 25; i++) {
+            System.out.println();
+        }
+    }
+
+    static void waitForEnter() {
+        System.out.println("\nPress Enter to continue...");
+        scanner.nextLine();
+    }
 
     // Load users from file or add default users
     static void loadUsers() {
@@ -136,6 +122,7 @@ public class FlightReservationSystem {
     static void changePassword() {
         if (loggedInUser == null) {
             System.out.println("You are not logged in.");
+            waitForEnter();
             return;
         }
         System.out.print("Enter current password: ");
@@ -155,12 +142,14 @@ public class FlightReservationSystem {
         loggedInUser.password = newPassword;
         System.out.println("Password changed successfully!");
         saveUsers();
+        waitForEnter();
     }
 
     // Display all available flights
     static void displayFlights() {
         if (flights.isEmpty()) {
             System.out.println("No flights available.");
+            waitForEnter();
             return;
         }
         System.out.println("\nAvailable Flights:");
@@ -168,6 +157,7 @@ public class FlightReservationSystem {
             System.out.printf("ID: %d | Name: %s | From: %s | To: %s | Seats: %d | Price: $%.2f\n",
                     flight.id, flight.flightName, flight.departure, flight.destination, flight.availableSeats, flight.price);
         }
+        waitForEnter();
     }
 
     // Add a new flight (Admin-only)
@@ -193,6 +183,7 @@ public class FlightReservationSystem {
 
         saveFlights();
         System.out.println("Flight added successfully! Flight ID: " + newId);
+        waitForEnter();
     }
 
     static void modifyFlight() {
@@ -212,6 +203,7 @@ public class FlightReservationSystem {
 
         if (selectedFlight == null) {
             System.out.println("Invalid Flight ID! Please try again.");
+            waitForEnter();
             return;
         }
 
@@ -238,6 +230,7 @@ public class FlightReservationSystem {
 
         saveFlights(); // Save updated flight data
         System.out.println("Flight modified successfully!");
+        waitForEnter();
     }
 
     // Book a flight
@@ -305,6 +298,7 @@ public class FlightReservationSystem {
 
     }
     static boolean processPayment(double amount) {
+        clearScreen();
         System.out.println("Select Payment Method:");
         System.out.println("1. Credit Card");
         System.out.println("2. Mobile banking(Bkash/Nagad/Rocket)");
@@ -349,6 +343,7 @@ public class FlightReservationSystem {
     static void cancelBooking() {
         if (bookingHistory.isEmpty()) {
             System.out.println("You have no bookings to cancel.");
+            waitForEnter();
             return;
         }
 
@@ -373,6 +368,7 @@ public class FlightReservationSystem {
         } catch (NumberFormatException e) {
             System.out.println("Invalid input! Please enter a valid booking number.");
         }
+        waitForEnter();
     }
 
     static void deleteFlight() {
@@ -392,6 +388,7 @@ public class FlightReservationSystem {
 
         if (selectedFlight == null) {
             System.out.println("Invalid Flight ID! Please try again.");
+            waitForEnter();
             return;
         }
 
@@ -404,11 +401,13 @@ public class FlightReservationSystem {
         System.out.println("Here is a list of all registered users:");
         if (users.isEmpty()) {
             System.out.println("No users found.");
+            waitForEnter();
             return;
         }
         for (User user : users) {
             System.out.printf("Username: %s | Admin: %s%n", user.username, user.isAdmin ? "Yes" : "No");
         }
+        waitForEnter();
     }
 
     static void searchFlights() {
@@ -429,13 +428,16 @@ public class FlightReservationSystem {
         if (!found) {
             System.out.println("No flights found matching the criteria.");
         }
+        waitForEnter();
     }
     static void removeUser() {
+        viewUsers();
         System.out.print("Enter the username of the user to remove: ");
         String usernameToRemove = scanner.nextLine();
 
         if (loggedInUser != null && loggedInUser.username.equals(usernameToRemove)) {
             System.out.println("You cannot remove yourself.");
+            waitForEnter();
             return;
         }
 
@@ -449,18 +451,21 @@ public class FlightReservationSystem {
 
         if (userToRemove == null) {
             System.out.println("User not found.");
+            waitForEnter();
             return;
         }
 
         users.remove(userToRemove);
         saveUsers();
         System.out.println("User '" + usernameToRemove + "' has been removed.");
+        waitForEnter();
     }
 
 
     // Admin menu
     static void adminMenu() {
         while (loggedInUser != null && loggedInUser.isAdmin) {
+            clearScreen();
             System.out.println("\nAdmin Menu:");
             System.out.println("1. Add Flight\n2. View Flights\n3. Modify Flight\n4. Delete Flight");
             System.out.println("5. View Users\n6. Remove User\n7. Change Password\n8. Logout");
@@ -490,6 +495,7 @@ public class FlightReservationSystem {
     static void viewBookingHistory() {
         if (bookingHistory.isEmpty()) {
             System.out.println("No bookings found in your history.");
+            waitForEnter();
             return;
         }
 
@@ -497,10 +503,12 @@ public class FlightReservationSystem {
         for (int i = 0; i < bookingHistory.size(); i++) {
             System.out.printf("%d. %s%n", i + 1, bookingHistory.get(i));
         }
+        waitForEnter();
     }
 
     static void userMenu() {
         while (loggedInUser != null && !loggedInUser.isAdmin) {
+            clearScreen();
             System.out.println("\nUser Menu:");
             System.out.println("1. View Flights\n2. Search Flights\n3. Book Flight\n4. View Booking History");
             System.out.println("5. Cancel Booking\n6. Change Password\n7. Logout");
@@ -532,6 +540,7 @@ public class FlightReservationSystem {
         loadFlights(); // Load initial flight data
 
         while (true) {
+            clearScreen();
             System.out.println("\n1. Register\n2. Login\n3. Exit\nEnter choice: ");
             try {
                 int choice = Integer.parseInt(scanner.nextLine());
@@ -559,7 +568,3 @@ public class FlightReservationSystem {
         }
     }
 }
-
-
-
-
